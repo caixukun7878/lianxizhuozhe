@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>联系作者</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html,body{
+      height:100%;
+      overflow:hidden;
+      font-family:"微软雅黑","PingFang SC",sans-serif;
+      /* ★ 防止 iOS 橡皮筋和横滑 */
+      overscroll-behavior:none;
+      -webkit-tap-highlight-color:transparent;
+      -webkit-font-smoothing:antialiased;
+    }
+    body{
+      background:#0a0a12;
+      /* ★ 让按钮点按不触发双击缩放 */
+      touch-action:manipulation;
+    }
+
+    /* ================= 动态视频背景 ================= */
+    .video-bg{
+      position:fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      z-index:1;
+      overflow:hidden;
+      background:
+        radial-gradient(900px 520px at 18% 18%, rgba(99,102,241,.45), transparent 60%),
+        radial-gradient(820px 520px at 82% 28%, rgba(236,72,153,.35), transparent 60%),
+        radial-gradient(760px 520px at 50% 105%, rgba(34,211,238,.28), transparent 60%),
+        linear-gradient(160deg,#0b0b16 0%,#141026 50%,#0a0a12 100%);
+    }
+    .video-bg video{
+      width:100%; height:100%;
+      object-fit:cover;
+      animation:kenBurns 34s ease-in-out infinite alternate;
+      will-change:transform;
+    }
+    @keyframes kenBurns{
+      from{ transform:scale(1); }
+      to  { transform:scale(1.09); }
+    }
+
+    /* ================= 氛围遮罩 ================= */
+    .mask{
+      position:fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      z-index:2;
+      background:
+        linear-gradient(180deg,
+          rgba(0,0,0,.62) 0%,
+          rgba(0,0,0,.18) 26%,
+          rgba(0,0,0,.12) 58%,
+          rgba(0,0,0,.72) 100%);
+      pointer-events:none;
+    }
+
+    /* ================= 内容层 ================= */
+    .content{
+      position:relative;
+      z-index:3;
+      /* ★ 关键：用 dvh 适配手机动态地址栏 */
+      height:100vh;
+      height:100dvh;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:24px;
+      /* ★ 四边都考虑安全区 */
+      padding:
+        max(40px, env(safe-area-inset-top))
+        max(20px, env(safe-area-inset-right))
+        max(40px, env(safe-area-inset-bottom))
+        max(20px, env(safe-area-inset-left));
+      color:#fff;
+    }
+
+    /* ---------- 标题卡 ---------- */
+    .title{
+      position:relative;
+      max-width:560px;
+      padding:28px 30px 26px;
+      border-radius:24px;
+      background:linear-gradient(150deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,.06) 100%);
+      border:1px solid rgba(255,255,255,.20);
+      backdrop-filter:blur(22px) saturate(180%);
+      -webkit-backdrop-filter:blur(22px) saturate(180%);
+      box-shadow:
+        0 18px 50px -18px rgba(0,0,0,.65),
+        inset 0 1px 0 rgba(255,255,255,.32),
+        inset 0 -1px 0 rgba(255,255,255,.06);
+      overflow:hidden;
+      animation:riseIn .9s cubic-bezier(.2,.8,.3,1) .12s both;
+    }
+    .title::before{
+      content:"";
+      position:absolute;
+      top:-70%; left:-20%;
+      width:70%; height:220%;
+      background:linear-gradient(115deg, rgba(255,255,255,.22), transparent 62%);
+      transform:rotate(10deg);
+      pointer-events:none;
+    }
+    .tag{
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      gap:9px;
+      margin-bottom:14px;
+      font-size:11px;
+      letter-spacing:3.4px;
+      color:rgba(255,255,255,.60);
+      text-transform:uppercase;
+    }
+    .tag::before{
+      content:"";
+      width:20px; height:1px;
+      background:linear-gradient(90deg, rgba(255,255,255,.7), rgba(255,255,255,.15));
+    }
+    .title h2{
+      position:relative;
+      font-size:30px;
+      font-weight:700;
+      letter-spacing:6px;
+      line-height:1.3;
+      background:linear-gradient(180deg,#ffffff 0%,#e6ebff 48%,#a9b6d8 100%);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+      -webkit-text-fill-color:transparent;
+      filter:drop-shadow(0 2px 20px rgba(150,175,255,.35));
+    }
+    .title .sub{
+      position:relative;
+      margin-top:14px;
+      font-size:13.5px;
+      letter-spacing:1.2px;
+      line-height:1.9;
+      color:rgba(255,255,255,.78);
+    }
+    .title .sub .sep{
+      display:inline-block;
+      width:4px; height:4px;
+      margin:0 10px;
+      border-radius:50%;
+      background:rgba(255,255,255,.42);
+      vertical-align:middle;
+    }
+    .title .desc{
+      position:relative;
+      margin-top:6px;
+      font-size:12.5px;
+      letter-spacing:2px;
+      color:rgba(255,255,255,.48);
+    }
+
+    /* ---------- 按钮 ---------- */
+    .btn-box{
+      text-align:center;
+      animation:riseIn .9s cubic-bezier(.2,.8,.3,1) .34s both;
+    }
+    .contact-btn{
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      /* ★ 移动端点击区最小 48px 高 */
+      min-height:52px;
+      padding:15px 50px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.30);
+      background:linear-gradient(180deg, rgba(255,255,255,.20) 0%, rgba(255,255,255,.06) 100%);
+      backdrop-filter:blur(16px) saturate(180%);
+      -webkit-backdrop-filter:blur(16px) saturate(180%);
+      color:#fff;
+      font-size:15px;
+      letter-spacing:2px;
+      cursor:pointer;
+      overflow:hidden;
+      -webkit-appearance:none;
+      appearance:none;
+      box-shadow:
+        0 14px 34px -14px rgba(0,0,0,.75),
+        inset 0 1px 0 rgba(255,255,255,.42),
+        inset 0 -1px 0 rgba(255,255,255,.08);
+      transition:
+        transform .28s cubic-bezier(.2,.8,.3,1),
+        box-shadow .28s ease,
+        background .28s ease,
+        border-color .28s ease;
+    }
+    .contact-btn::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(120deg, transparent 32%, rgba(255,255,255,.38) 50%, transparent 68%);
+      transform:translateX(-130%);
+      transition:transform .8s ease;
+      pointer-events:none;
+    }
+    .contact-btn:hover{
+      transform:translateY(-2px);
+      border-color:rgba(255,255,255,.48);
+      background:linear-gradient(180deg, rgba(255,255,255,.28) 0%, rgba(255,255,255,.10) 100%);
+      box-shadow:
+        0 20px 44px -16px rgba(0,0,0,.8),
+        inset 0 1px 0 rgba(255,255,255,.55);
+    }
+    .contact-btn:hover::after{ transform:translateX(130%); }
+    .contact-btn:active{ transform:translateY(0) scale(.975); }
+    .contact-btn svg{
+      width:18px; height:18px;
+      flex:none;
+      opacity:.9;
+    }
+    .contact-btn span{ position:relative; z-index:1; }
+
+    @keyframes riseIn{
+      from{ opacity:0; transform:translateY(26px); }
+      to  { opacity:1; transform:translateY(0); }
+    }
+
+    /* =========================================================
+       二维码弹窗
+       ========================================================= */
+    .popup{
+      position:fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      z-index:99;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      /* ★ 安全区上下留白 */
+      padding:
+        max(16px, env(safe-area-inset-top))
+        16px
+        max(16px, env(safe-area-inset-bottom))
+        16px;
+      background:
+        radial-gradient(60% 50% at 50% 42%, rgba(70,60,120,.35), transparent 70%),
+        rgba(6,6,14,.66);
+      backdrop-filter:blur(14px) saturate(140%);
+      -webkit-backdrop-filter:blur(14px) saturate(140%);
+      overscroll-behavior:contain;
+    }
+    .popup.show{ display:flex; animation:fadeIn .24s ease-out; }
+    @keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+
+    .popup-card{
+      position:relative;
+      /* ★ 永远不超过视口，留出左右各 16px */
+      width:min(420px, calc(100vw - 32px));
+      /* ★ 弹窗过高时内部滚动 */
+      max-height:calc(100dvh - 32px);
+      overflow-y:auto;
+      -webkit-overflow-scrolling:touch;
+      padding:34px 28px 26px;
+      border-radius:28px;
+      text-align:center;
+      background:linear-gradient(165deg, rgba(255,255,255,.98) 0%, rgba(246,248,255,.96) 100%);
+      border:1px solid rgba(255,255,255,.85);
+      box-shadow:
+        0 40px 100px -30px rgba(0,0,0,.85),
+        0 10px 30px -12px rgba(60,50,120,.35),
+        inset 0 1px 0 rgba(255,255,255,1),
+        inset 0 -1px 0 rgba(200,210,235,.4);
+      animation:popIn .32s cubic-bezier(.2,.8,.3,1);
+    }
+    .popup-card::before{
+      content:"";
+      position:absolute;
+      top:0; left:0; right:0;
+      height:120px;
+      background:radial-gradient(120% 100% at 50% 0%, rgba(139,124,246,.22), transparent 70%);
+      pointer-events:none;
+    }
+    @keyframes popIn{
+      from{ opacity:0; transform:translateY(18px) scale(.94); }
+      to  { opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    .popup-x{
+      position:absolute;
+      top:14px; right:14px;
+      z-index:2;
+      /* ★ 32 → 36，更好点 */
+      width:36px; height:36px;
+      display:grid; place-items:center;
+      border:none;
+      border-radius:50%;
+      background:rgba(15,23,42,.06);
+      color:#64748b;
+      font-size:13px;
+      line-height:1;
+      cursor:pointer;
+      -webkit-appearance:none;
+      appearance:none;
+      transition:background .18s ease, color .18s ease, transform .18s ease;
+    }
+    .popup-x:hover{
+      background:rgba(15,23,42,.12);
+      color:#0f172a;
+      transform:rotate(90deg);
+    }
+
+    .popup-head{
+      position:relative;
+      margin-bottom:22px;
+    }
+    .popup-badge{
+      width:52px; height:52px;
+      margin:0 auto 14px;
+      display:grid; place-items:center;
+      border-radius:16px;
+      color:#fff;
+      background:linear-gradient(145deg,#6366f1 0%,#8b5cf6 52%,#ec4899 100%);
+      box-shadow:
+        0 10px 24px -8px rgba(139,92,246,.65),
+        inset 0 1px 0 rgba(255,255,255,.45);
+    }
+    .popup-badge svg{
+      width:26px; height:26px;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:1.8;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+    .popup-head h3{
+      font-size:18px;
+      font-weight:700;
+      letter-spacing:2px;
+      color:#0f172a;
+    }
+    .popup-head p{
+      margin-top:6px;
+      font-size:12px;
+      letter-spacing:.6px;
+      color:#94a3b8;
+    }
+
+    .qrcode-wrap{
+      display:flex;
+      gap:16px;
+      justify-content:center;
+      padding:16px;
+      margin-bottom:22px;
+      border-radius:20px;
+      background:linear-gradient(180deg, rgba(241,244,252,.9) 0%, rgba(248,250,255,.9) 100%);
+      border:1px solid rgba(226,232,240,.9);
+      box-shadow:inset 0 1px 2px rgba(15,23,42,.04);
+    }
+    .qrcode-item{
+      flex:1;
+      min-width:0;
+    }
+    .qr-frame{
+      position:relative;
+      width:100%;
+      aspect-ratio:1 / 1;
+      border-radius:16px;
+      overflow:hidden;
+      background:#fff;
+      box-shadow:
+        0 6px 18px -8px rgba(15,23,42,.28),
+        inset 0 0 0 1px rgba(15,23,42,.06);
+      transition:transform .25s cubic-bezier(.2,.8,.3,1), box-shadow .25s ease;
+    }
+    .qr-frame img{
+      display:block;
+      width:100%; height:100%;
+      object-fit:cover;
+      transform:scale(1.12);
+      transform-origin:center;
+      -webkit-user-select:none;
+      user-select:none;
+      -webkit-touch-callout:default; /* 允许长按识别二维码 */
+    }
+    .qr-frame:hover{
+      transform:translateY(-3px);
+      box-shadow:
+        0 14px 30px -12px rgba(15,23,42,.35),
+        inset 0 0 0 1px rgba(139,92,246,.35);
+    }
+    .qrcode-item p{
+      margin-top:10px;
+      font-size:12.5px;
+      font-weight:600;
+      letter-spacing:1.5px;
+      color:#475569;
+    }
+
+    .popup-foot{
+      position:relative;
+      padding-top:18px;
+      border-top:1px solid rgba(226,232,240,.9);
+    }
+    .close-btn{
+      width:100%;
+      min-height:48px;
+      padding:13px 0;
+      border:none;
+      border-radius:14px;
+      background:linear-gradient(180deg,#1f2937 0%,#111827 100%);
+      color:#fff;
+      font-size:14px;
+      letter-spacing:3px;
+      cursor:pointer;
+      -webkit-appearance:none;
+      appearance:none;
+      box-shadow:0 10px 24px -12px rgba(15,23,42,.7);
+      transition:transform .2s ease, box-shadow .2s ease, filter .2s ease;
+    }
+    .close-btn:hover{
+      filter:brightness(1.15);
+      box-shadow:0 14px 30px -12px rgba(15,23,42,.8);
+    }
+    .close-btn:active{ transform:scale(.98); }
+
+    /* =========================================================
+       手机适配
+       ========================================================= */
+
+    /* 平板 / 大手机 */
+    @media (max-width:600px){
+      .content{
+        padding-top:    max(32px, env(safe-area-inset-top));
+        padding-bottom: max(32px, env(safe-area-inset-bottom));
+      }
+      .title{ padding:22px 20px 20px; border-radius:20px; }
+      .title h2{ font-size:24px; letter-spacing:4px; }
+      .title .sub{ font-size:12.5px; letter-spacing:1px; }
+      .title .sub .sep{ margin:0 8px; }
+      .title .desc{ font-size:11.5px; letter-spacing:1.5px; }
+      .contact-btn{
+        padding:14px 40px;
+        font-size:14.5px;
+        letter-spacing:1.5px;
+      }
+    }
+
+    /* 手机竖屏 */
+    @media (max-width:480px){
+      .content{
+        padding:
+          max(28px, env(safe-area-inset-top))
+          16px
+          max(28px, env(safe-area-inset-bottom))
+          16px;
+        gap:20px;
+      }
+      .title{ padding:20px 18px 18px; }
+      .title h2{ font-size:22px; letter-spacing:3px; }
+      .title .sub{ font-size:12px; }
+
+      .contact-btn{
+        width:100%;
+        max-width:320px;
+        padding:14px 20px;
+        font-size:14px;
+      }
+
+      .popup{ padding:
+        max(12px, env(safe-area-inset-top))
+        12px
+        max(12px, env(safe-area-inset-bottom))
+        12px;
+      }
+      .popup-card{
+        width:100%;
+        max-height:calc(100dvh - 24px);
+        padding:30px 18px 20px;
+        border-radius:24px;
+      }
+      .popup-x{ top:10px; right:10px; width:34px; height:34px; }
+      .popup-badge{ width:46px; height:46px; border-radius:14px; }
+      .popup-badge svg{ width:22px; height:22px; }
+      .popup-head h3{ font-size:16px; letter-spacing:1.5px; }
+      .popup-head p{ font-size:11px; }
+      .qrcode-wrap{ gap:12px; padding:12px; border-radius:16px; margin-bottom:18px; }
+      .qr-frame{ border-radius:13px; }
+      .qrcode-item p{ font-size:11.5px; letter-spacing:1px; margin-top:8px; }
+      .close-btn{ padding:12px 0; font-size:13px; letter-spacing:2px; min-height:46px; }
+    }
+
+    /* 小屏 360 及以下 */
+    @media (max-width:360px){
+      .title h2{ font-size:20px; letter-spacing:2px; }
+      .title .sub{ font-size:11.5px; }
+      .title .sub .sep{ margin:0 6px; }
+      .title .desc{ font-size:11px; }
+      .contact-btn{ font-size:13.5px; padding:13px 18px; }
+      .popup-card{ padding:26px 14px 18px; border-radius:20px; }
+      .qrcode-wrap{ gap:10px; padding:10px; }
+      .popup-head h3{ font-size:15px; }
+    }
+
+    /* ★ 手机横屏：高度紧张，改为左右布局 */
+    @media (orientation:landscape) and (max-height:520px){
+      .content{
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+        gap:20px;
+        padding:
+          max(14px, env(safe-area-inset-top))
+          max(20px, env(safe-area-inset-right))
+          max(14px, env(safe-area-inset-bottom))
+          max(20px, env(safe-area-inset-left));
+      }
+      .title{
+        flex:1;
+        max-width:none;
+        padding:18px 20px 16px;
+        border-radius:18px;
+      }
+      .title h2{ font-size:20px; letter-spacing:3px; }
+      .title .sub{ font-size:11.5px; margin-top:8px; }
+      .title .desc{ font-size:11px; margin-top:3px; }
+      .tag{ margin-bottom:8px; font-size:10px; letter-spacing:2.5px; }
+
+      .btn-box{ flex:none; }
+      .contact-btn{
+        width:auto;
+        min-height:46px;
+        padding:12px 26px;
+        font-size:13px;
+        letter-spacing:1px;
+      }
+
+      .popup-card{
+        max-width:520px;
+        padding:20px 22px 16px;
+      }
+      .popup-badge{ width:38px; height:38px; margin-bottom:8px; border-radius:12px; }
+      .popup-badge svg{ width:18px; height:18px; }
+      .popup-head{ margin-bottom:12px; }
+      .popup-head h3{ font-size:15px; }
+      .popup-head p{ font-size:10.5px; margin-top:3px; }
+      .qrcode-wrap{
+        padding:10px;
+        gap:10px;
+        margin-bottom:12px;
+        border-radius:14px;
+      }
+      .qr-frame{ border-radius:10px; }
+      .qrcode-item p{ font-size:10.5px; margin-top:6px; }
+      .popup-foot{ padding-top:12px; }
+      .close-btn{ min-height:40px; padding:10px 0; font-size:12px; letter-spacing:2px; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .video-bg video,
+      .title,
+      .btn-box,
+      .popup-card{ animation:none !important; }
+      .contact-btn,
+      .contact-btn::after,
+      .qr-frame,
+      .popup-x{ transition:none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="video-bg">
+  <video autoplay muted loop playsinline preload="auto">
+    <source src="back.mp4" type="video/mp4">
+  </video>
+</div>
+<div class="mask"></div>
+
+<div class="content">
+  <div class="title">
+    <div class="tag">Contact</div>
+    <h2>联系作者</h2>
+    <p class="sub">关注微信公众号-野趣体育</p>
+    <p class="desc">交流学习 &amp; 版本更新</p>
+  </div>
+
+  <div class="btn-box">
+    <button class="contact-btn" id="openPop" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/>
+        <path d="M8 8h3v3H8zM13 13h3v3h-3z"/>
+      </svg>
+      <span>点击扫码联系</span>
+    </button>
+  </div>
+</div>
+
+<div class="popup" id="pop">
+  <div class="popup-card">
+    <button class="popup-x" id="closePopX" type="button" aria-label="关闭">✕</button>
+
+    <div class="popup-head">
+      <div class="popup-badge">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 5.5h6v6H4zM14 5.5h6v6h-6zM4 12.5h6v6H4z"/>
+          <path d="M14 12.5h2.5v2.5H14zM17.5 12.5H20v2.5h-2.5zM14 17.5h2.5V20H14zM17.5 17.5H20V20h-2.5z"/>
+        </svg>
+      </div>
+      <h3>微信 / 公众号</h3>
+      <p>长按识别二维码，添加好友或关注公众号</p>
+    </div>
+
+    <div class="qrcode-wrap">
+      <div class="qrcode-item">
+        <div class="qr-frame"><img src="wx.png" alt="个人微信二维码"></div>
+        <p>个人微信</p>
+      </div>
+      <div class="qrcode-item">
+        <div class="qr-frame"><img src="gzh.png" alt="公众号二维码"></div>
+        <p>公众号</p>
+      </div>
+    </div>
+
+    <div class="popup-foot">
+      <button class="close-btn" id="closePop" type="button">关 闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  var pop = document.getElementById('pop');
+  var lastScroll = 0;
+
+  function openPop() {
+    lastScroll = window.scrollY;
+    pop.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closePop() {
+    pop.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('openPop').addEventListener('click', openPop);
+  document.getElementById('closePop').addEventListener('click', closePop);
+  document.getElementById('closePopX').addEventListener('click', closePop);
+
+  pop.addEventListener('click', function (e) {
+    if (e.target === pop) closePop();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && pop.classList.contains('show')) closePop();
+  });
+</script>
+
+</body>
+</html>
